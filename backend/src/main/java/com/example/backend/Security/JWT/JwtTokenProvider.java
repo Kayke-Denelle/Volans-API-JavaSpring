@@ -1,42 +1,55 @@
 package com.example.backend.Security.JWT;
 
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import javax.crypto.SecretKey;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
-import java.security.Key;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtTokenProvider {
+    
+        private final SecretKey jwtSecret;
+        private final long jwtExpirationMs;
+    
+        public JwtTokenProvider(@Value("${jwt.secret}") String jwtSecretString,
+                                @Value("${jwt.expiration-ms}") long jwtExpirationMs) {
+            this.jwtSecret = Keys.hmacShaKeyFor(jwtSecretString.getBytes());
+            this.jwtExpirationMs = jwtExpirationMs;
+        }
 
-    private final Key jwtSecret = Keys.secretKeyFor(SignatureAlgorithm.HS512);
-    private final long jwtExpirationMs = 86400000; // 24 horas
-
-    public String generateToken(Authentication authentication) {
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
+        public String generateToken(Authentication authentication) {
+            Date now = new Date();
+            Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
         
-        String username = authentication.getName();
-        List<String> roles = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
+            List<String> roles = authentication.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toList());
         
-        return Jwts.builder()
-                .setSubject(username)
-                .claim("roles", roles)
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
-                .signWith(jwtSecret, SignatureAlgorithm.HS512)
-                .compact();
-    }
+            System.out.println("Gerando token para usuário: " + authentication.getName());
+            System.out.println("Roles: " + roles);
+        
+            return Jwts.builder()
+                    .setSubject(authentication.getName())
+                    .claim("roles", roles)
+                    .setIssuedAt(now)
+                    .setExpiration(expiryDate)
+                    .signWith(jwtSecret, SignatureAlgorithm.HS512)
+                    .compact();
+        }
 
     public boolean validateToken(String token) {
         try {
@@ -81,7 +94,11 @@ public class JwtTokenProvider {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-        
-        return claims.get("roles", List.class);
+    
+        Object roles = claims.get("roles");
+        if (roles instanceof List) {
+            return (List<String>) roles;
+        }
+        return List.of();
     }
 }

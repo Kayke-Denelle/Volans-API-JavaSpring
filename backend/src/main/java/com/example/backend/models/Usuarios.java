@@ -1,23 +1,16 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-
 package com.example.backend.models;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.persistence.Id;
 
-/**
- *
- * @author kayke
- */
 @Document(collection = "Usuarios")
 public class Usuarios implements UserDetails {
     @Id
@@ -25,33 +18,38 @@ public class Usuarios implements UserDetails {
     private String username;
     private String email;
     private String password;
-    
-    
-    
+
+    // Novo campo para armazenar os papéis do usuário
+    private List<String> roles;
+
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.emptyList();
-    }
-    
+public Collection<? extends GrantedAuthority> getAuthorities() {
+    return roles.stream() // Assumindo que 'roles' é uma lista de SimpleGrantedAuthority
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
+}
+
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
-    
+
     @Override
     public boolean isAccountNonLocked() {
         return true;
     }
-    
+
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
-    
+
     @Override
     public boolean isEnabled() {
         return true;
     }
+
+    // Getters e setters para os atributos
 
     public String getId() {
         return id;
@@ -61,10 +59,12 @@ public class Usuarios implements UserDetails {
         this.id = id;
     }
 
+    @Override
     public String getUsername() {
         return username;
     }
 
+    
     public void setUsername(String username) {
         this.username = username;
     }
@@ -77,11 +77,21 @@ public class Usuarios implements UserDetails {
         this.email = email;
     }
 
+    @Override
     public String getPassword() {
         return password;
     }
 
+
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public List<String> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<String> roles) {
+        this.roles = roles;
     }
 }

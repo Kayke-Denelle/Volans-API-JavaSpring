@@ -1,5 +1,7 @@
 package com.example.backend.service;
 
+import java.util.List;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -38,10 +40,11 @@ public class UsuarioService {
         }
 
         Usuarios user = new Usuarios();
-        user.setUsername(request.getUsername());
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        
-        return userRepository.save(user);
+    user.setUsername(request.getUsername());
+    user.setPassword(passwordEncoder.encode(request.getPassword()));
+    user.setEmail(request.getEmail());
+    user.setRoles(List.of("ROLE_USER")); // Define a role padrão aqui
+
+    return userRepository.save(user);
     }
 }
