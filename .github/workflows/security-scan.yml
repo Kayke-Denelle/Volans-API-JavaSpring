@@ -29,6 +29,14 @@ jobs:
       - name: Checkout do código
         uses: actions/checkout@v4
 
+      - name: Validate JWT Secret
+        run: |
+          if [ ${#JWT_SECRET} -lt 64 ]; then
+            echo "::error::JWT_SECRET deve ter pelo menos 64 caracteres"
+            exit 1
+          fi
+          echo "JWT secret length OK: ${#JWT_SECRET} characters"
+
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
@@ -43,18 +51,18 @@ jobs:
             chmod +x mvnw
           fi
           
-          # Build and start the application
-          nohup ./mvnw spring-boot:run -Dserver.port=8080 -DJWT_SECRET=$JWT_SECRET > spring.log 2>&1 &
+          # Build and start with your specific secret
+          nohup ./mvnw spring-boot:run -Dserver.port=8080 -Djwt.secret="$JWT_SECRET" > spring.log 2>&1 &
           
           # Wait for startup
           sleep 15
           for i in {1..10}; do
             if curl -s http://localhost:8080/actuator/health; then
-              echo "API started successfully"
+              echo "API iniciada com sucesso"
               break
             fi
             sleep 5
-            echo "Waiting for API to start... Attempt $i/10"
+            echo "Aguardando API iniciar... Tentativa $i/10"
           done
 
       - name: Verify API logs
