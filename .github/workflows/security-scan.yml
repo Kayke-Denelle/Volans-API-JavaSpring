@@ -17,7 +17,7 @@ jobs:
           docker run --rm -v ${{ github.workspace }}:/code syhunt/syhunt-code scan /code --report report.html
 
       - name: Upload Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: security-report
           path: report.html
