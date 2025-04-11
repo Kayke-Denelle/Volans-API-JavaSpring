@@ -13,10 +13,16 @@ jobs:
       - name: Checkout do código
         uses: actions/checkout@v3
 
-      - name: Rodar análise com Semgrep
-        uses: returntocorp/semgrep-action@v1
+      - name: Instalar e rodar Semgrep manualmente
+        run: |
+          pip install semgrep
+          semgrep scan --config auto --json > semgrep-report.json
+
+      - name: Upload do relatório do Semgrep
+        uses: actions/upload-artifact@v3
         with:
-          config: "auto"
+          name: semgrep-report
+          path: semgrep-report.json
 
   dast_zap:
     name: OWASP ZAP DAST
@@ -38,13 +44,8 @@ jobs:
             owasp/zap2docker-stable zap-baseline.py \
             -t http://localhost:8080
 
-             name: Rodar Semgrep manualmente e salvar relatório
-  run: |
-    pip install semgrep
-    semgrep scan --config auto --json > semgrep-report.json
-
-- name: Upload do relatório do Semgrep
-  uses: actions/upload-artifact@v3
-  with:
-    name: semgrep-report
-    path: semgrep-report.json
+      - name: Upload do relatório do ZAP
+        uses: actions/upload-artifact@v3
+        with:
+          name: zap-report
+          path: zap-report.html
