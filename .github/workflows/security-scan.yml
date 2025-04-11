@@ -33,9 +33,13 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Generate Maven Wrapper
+        run: |
+          mvn -N io.takari:maven:wrapper -Dmaven=3.8.6
+          chmod +x mvnw
+
       - name: Build application
         run: |
-          chmod +x mvnw
           ./mvnw clean package -DskipTests
 
       - name: Start da API (Spring Boot)
