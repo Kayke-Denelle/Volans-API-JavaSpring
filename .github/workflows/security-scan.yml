@@ -10,7 +10,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/upload-artifact@v4
+        uses: actions/checkout@v4  # Changed from upload-artifact to checkout
 
       - name: Run Syhunt Code (SAST)
         run: |
