@@ -40,7 +40,8 @@ jobs:
 
       - name: Rodar ZAP Baseline Scan
         run: |
-          docker run -v ${{ github.workspace }}:/zap/wrk/:rw \
+          docker run --add-host=host.docker.internal:172.17.0.1 \
+            -v ${{ github.workspace }}:/zap/wrk/:rw \
             ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
             -t http://host.docker.internal:8080 \
             -r zap-report.html \
