@@ -27,13 +27,26 @@ jobs:
       - name: Checkout do código
         uses: actions/checkout@v4
 
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build application
+        run: |
+          chmod +x mvnw
+          ./mvnw clean package -DskipTests
+
       - name: Start da API (Spring Boot)
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: |
-          nohup ./mvnw spring-boot:run -Dserver.port=8080 &
-          sleep 60
-          curl --retry 5 --retry-delay 5 --retry-all-errors http://localhost:8080/actuator/health
+          java -jar target/*.jar &
+          sleep 10
+          until curl -s http://localhost:8080/actuator/health; do
+            sleep 5
+          done
 
       - name: Pull ZAP Docker Image
         run: docker pull ghcr.io/zaproxy/zaproxy:stable
