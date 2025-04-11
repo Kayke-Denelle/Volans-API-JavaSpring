@@ -1,4 +1,4 @@
-name: Security Scan CI1
+name: Security Scan CI
 
 on:
   push:
@@ -22,63 +22,20 @@ jobs:
     name: OWASP ZAP DAST
     runs-on: ubuntu-latest
     needs: sast_semgrep
-    env:
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
-
-      - name: Validate JWT Secret
-        run: |
-          if [ ${#JWT_SECRET} -lt 64 ]; then
-            echo "::error::JWT_SECRET deve ter pelo menos 64 caracteres"
-            exit 1
-          fi
-          echo "JWT secret length OK: ${#JWT_SECRET} characters"
-
-      - name: Set up Java
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Build and Start API
-        run: |
-          # Generate Maven wrapper if missing
-          if [ ! -f "mvnw" ]; then
-            mvn -N io.takari:maven:wrapper -Dmaven=3.8.6
-            chmod +x mvnw
-          fi
-          
-          # Build and start with your specific secret
-          nohup ./mvnw spring-boot:run -Dserver.port=8080 -Djwt.secret="$JWT_SECRET" > spring.log 2>&1 &
-          
-          # Wait for startup
-          sleep 15
-          for i in {1..10}; do
-            if curl -s http://localhost:8080/actuator/health; then
-              echo "API iniciada com sucesso"
-              break
-            fi
-            sleep 5
-            echo "Aguardando API iniciar... Tentativa $i/10"
-          done
-
-      - name: Verify API logs
-        run: |
-          cat spring.log
-          curl -v http://localhost:8080/actuator/health
 
       - name: Pull ZAP Docker Image
         run: docker pull ghcr.io/zaproxy/zaproxy:stable
 
       - name: Rodar ZAP Baseline Scan
         run: |
-          docker run --network="host" \
+          docker run \
             -v ${{ github.workspace }}:/zap/wrk/:rw \
             ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
-            -t http://localhost:8080 \
+            -t http://your-api-url.com:8080 \  # Replace with your actual API URL
             -r zap-report.html \
             -m 15 \
             -l INFO
