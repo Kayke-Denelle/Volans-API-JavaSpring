@@ -35,7 +35,7 @@ jobs:
           docker run \
             -v ${{ github.workspace }}:/zap/wrk/:rw \
             ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
-            -t http://your-api-url.com:8080 \  # Replace with your actual API URL
+            -t http://localhost:8080 \  # Replace with your actual API URL
             -r zap-report.html \
             -m 15 \
             -l INFO
