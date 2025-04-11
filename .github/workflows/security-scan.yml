@@ -1,23 +1,39 @@
-name: Security Scan
+name: Security Scan CI
 
 on:
   push:
     branches: [ "main" ]
 
 jobs:
-  security:
+  sast_semgrep:
+    name: Código Seguro com Semgrep
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4  # Changed from upload-artifact to checkout
+      - name: Checkout do código
+        uses: actions/checkout@v3
 
-      - name: Run Syhunt Code (SAST)
-        run: |
-          docker run --rm -v ${{ github.workspace }}:/code syhunt/syhunt-code scan /code --report report.html
-
-      - name: Upload Report
-        uses: actions/upload-artifact@v4
+      - name: Rodar análise com Semgrep
+        uses: returntocorp/semgrep-action@v1
         with:
-          name: security-report
-          path: report.html
+          config: "auto"
+
+  dast_zap:
+    name: OWASP ZAP DAST
+    runs-on: ubuntu-latest
+    needs: sast_semgrep
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Start da API (Spring Boot)
+        run: |
+          nohup ./mvnw spring-boot:run &
+          sleep 20
+
+      - name: Rodar ZAP Baseline Scan
+        run: |
+          docker run -v ${{ github.workspace }}:/zap/wrk/:rw \
+            owasp/zap2docker-stable zap-baseline.py \
+            -t http://localhost:808
