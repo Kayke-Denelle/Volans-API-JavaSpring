@@ -22,28 +22,58 @@ jobs:
     name: OWASP ZAP DAST
     runs-on: ubuntu-latest
     needs: sast_semgrep
+    env:
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
 
-      - name: Start da API (Spring Boot)
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build and Start API
         run: |
-          nohup ./mvnw spring-boot:run -Dserver.port=8080 -DJWT_SECRET=${{ secrets.JWT_SECRET }} &
-          sleep 60
-          curl --retry 5 --retry-delay 5 --retry-all-errors http://localhost:8080/actuator/health
+          # Generate Maven wrapper if missing
+          if [ ! -f "mvnw" ]; then
+            mvn -N io.takari:maven:wrapper -Dmaven=3.8.6
+            chmod +x mvnw
+          fi
+          
+          # Build and start the application
+          nohup ./mvnw spring-boot:run -Dserver.port=8080 -DJWT_SECRET=$JWT_SECRET > spring.log 2>&1 &
+          
+          # Wait for startup
+          sleep 15
+          for i in {1..10}; do
+            if curl -s http://localhost:8080/actuator/health; then
+              echo "API started successfully"
+              break
+            fi
+            sleep 5
+            echo "Waiting for API to start... Attempt $i/10"
+          done
+
+      - name: Verify API logs
+        run: |
+          cat spring.log
+          curl -v http://localhost:8080/actuator/health
 
       - name: Pull ZAP Docker Image
         run: docker pull ghcr.io/zaproxy/zaproxy:stable
 
       - name: Rodar ZAP Baseline Scan
         run: |
-          docker run --add-host=host.docker.internal:172.17.0.1 \
+          docker run --network="host" \
             -v ${{ github.workspace }}:/zap/wrk/:rw \
             ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
-            -t http://host.docker.internal:8080 \
+            -t http://localhost:8080 \
             -r zap-report.html \
-            -m 10
+            -m 15 \
+            -l INFO
 
       - name: Upload do relatório do ZAP
         uses: actions/upload-artifact@v4
