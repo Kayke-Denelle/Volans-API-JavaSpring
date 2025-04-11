@@ -36,4 +36,15 @@ jobs:
         run: |
           docker run -v ${{ github.workspace }}:/zap/wrk/:rw \
             owasp/zap2docker-stable zap-baseline.py \
-            -t http://localhost:808
+            -t http://localhost:8080
+
+             name: Rodar Semgrep manualmente e salvar relatório
+  run: |
+    pip install semgrep
+    semgrep scan --config auto --json > semgrep-report.json
+
+- name: Upload do relatório do Semgrep
+  uses: actions/upload-artifact@v3
+  with:
+    name: semgrep-report
+    path: semgrep-report.json
