@@ -14,12 +14,14 @@ public class CorsConfig {
             
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**") // Aplica para todas as rotas
-                        .allowedOrigins("http://127.0.0.1:5500") 
-                        .allowedOrigins("https://volans-api-javaspring.onrender.com")// Permite seu front rodando no Live Server
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Métodos permitidos
-                        .allowedHeaders("*") // Cabeçalhos permitidos
-                        .allowCredentials(true); // Se precisar enviar cookies ou auth
+                registry.addMapping("/**")
+                        .allowedOrigins(
+                            "http://127.0.0.1:5500", // Live Server local
+                            "https://volans-interface.vercel.app" // Frontend Vercel
+                        )
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedHeaders("*")
+                        .allowCredentials(true);
             }
         };
     }
