@@ -11,7 +11,7 @@ COPY backend/mvnw .
 RUN ./mvnw dependency:go-offline -B
 
 # Copy source code
-COPY backend/src/ src/
+COPY src/ src/
 
 # Build application
 RUN ./mvnw package -DskipTests
