@@ -3,9 +3,9 @@ FROM eclipse-temurin:17-jdk AS builder
 WORKDIR /workspace
 
 # Copy build files first (for layer caching)
-COPY backend/pom.xml .
-COPY backend/.mvn/ .mvn/
-COPY backend/mvnw .
+COPY pom.xml .
+COPY .mvn/ .mvn/
+COPY mvnw .
 
 # Download dependencies
 RUN ./mvnw dependency:go-offline -B
