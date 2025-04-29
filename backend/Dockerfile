@@ -7,7 +7,7 @@ RUN chmod +x mvnw
 # Copy build files first (for layer caching)
 COPY pom.xml .
 COPY .mvn/ .mvn/
-COPY mvnw .
+COPY backend/mvnw .
 
 RUN apt-get update && apt-get install -y bash
 
