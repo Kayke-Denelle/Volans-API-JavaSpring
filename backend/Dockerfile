@@ -2,6 +2,8 @@
 FROM eclipse-temurin:17-jdk AS builder
 WORKDIR /workspace
 
+RUN chmod +x mvnw
+
 # Copy build files first (for layer caching)
 COPY pom.xml .
 COPY .mvn/ .mvn/
