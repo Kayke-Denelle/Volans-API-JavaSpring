@@ -9,6 +9,8 @@ COPY pom.xml .
 COPY .mvn/ .mvn/
 COPY mvnw .
 
+RUN apt-get update && apt-get install -y bash
+
 # Download dependencies
 RUN ./mvnw dependency:go-offline -B
 
