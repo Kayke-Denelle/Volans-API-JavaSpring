@@ -2,22 +2,21 @@
 FROM eclipse-temurin:17-jdk AS builder
 WORKDIR /workspace
 
-RUN chmod +x mvnw
-
-# Copy build files first (for layer caching)
+# Copiar arquivos de build
 COPY pom.xml .
 COPY .mvn/ .mvn/
-COPY backend/mvnw .
+COPY mvnw .
 
-RUN apt-get update && apt-get install -y bash
+# Garantir que o mvnw tenha permissão de execução
+RUN chmod +x mvnw
 
-# Download dependencies
+# Baixar dependências
 RUN ./mvnw dependency:go-offline -B
 
-# Copy source code
-COPY src/ src/
+# Copiar o código-fonte
+COPY backend/src/ src/
 
-# Build application
+# Build da aplicação
 RUN ./mvnw package -DskipTests
 
 # Stage 2: Runtime
