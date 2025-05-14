@@ -1,5 +1,8 @@
 package com.example.backend.models;
 
+import java.time.LocalDateTime;
+
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -10,6 +13,9 @@ public class Flashcard {
     private String pergunta;
     private String resposta;
     private String baralhoId;
+
+    @CreatedDate
+    private LocalDateTime createdAt;
 
     public String getId() {
         return id;
@@ -41,6 +47,14 @@ public class Flashcard {
 
     public void setBaralhoId(String baralhoId) {
         this.baralhoId = baralhoId;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     

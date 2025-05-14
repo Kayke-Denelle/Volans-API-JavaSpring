@@ -10,12 +10,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.DTO.FlashcardDTO;
 import com.example.backend.Security.services.FlashcardService;
-import com.example.backend.models.Flashcard;
 
 @RestController
 @RequestMapping("/api/flashcards")
@@ -24,13 +25,27 @@ public class FlashcardController {
     @Autowired
     private FlashcardService flashcardService;
 
-    @PostMapping
-    public ResponseEntity<FlashcardDTO> criar(@RequestBody FlashcardDTO dto) {
-        return ResponseEntity.ok(flashcardService.criarFlashcard(dto));
+    @GetMapping
+    public ResponseEntity<List<FlashcardDTO>> listar(@RequestParam String baralhoId) {
+        return ResponseEntity.ok(flashcardService.listarPorBaralhoId(baralhoId));
     }
 
-    @GetMapping("/baralho/{baralhoId}")
-    public ResponseEntity<List<FlashcardDTO>> listarPorBaralho(@PathVariable String baralhoId) {
-        return ResponseEntity.ok(flashcardService.listarPorBaralhoId(baralhoId));
+    @PostMapping
+    public ResponseEntity<FlashcardDTO> criar(@RequestBody FlashcardDTO flashcardDTO) {
+        return ResponseEntity.ok(flashcardService.criarFlashcard(flashcardDTO));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<FlashcardDTO> editar(@PathVariable String id,
+                                               @RequestBody FlashcardDTO flashcardDTO,
+                                               @RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok(flashcardService.editarFlashcard(id, flashcardDTO, token));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> excluir(@PathVariable String id,
+                                        @RequestHeader("Authorization") String token) {
+        flashcardService.excluirFlashcard(id, token);
+        return ResponseEntity.noContent().build();
     }
 }

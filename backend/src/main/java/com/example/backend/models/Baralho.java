@@ -1,7 +1,9 @@
 package com.example.backend.models;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -11,6 +13,10 @@ public class Baralho {
     private String id;
     private String Nome;
     private String descricao;
+
+    @CreatedDate
+    private LocalDateTime createdAt;
+
     public String getDescricao() {
         return descricao;
     }
@@ -52,5 +58,13 @@ public class Baralho {
 
     public void setFlashcardIds(List<String> flashcardIds) {
         this.flashcardIds = flashcardIds;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }

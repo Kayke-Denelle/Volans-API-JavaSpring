@@ -1,6 +1,7 @@
 package com.example.backend.Security.services;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,5 +39,49 @@ public class BaralhoServiceImpl implements BaralhoService {
                 .stream()
                 .map(b -> new BaralhoDTO(b.getId(), b.getNome(), b.getDescricao()))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public BaralhoDTO editarBaralho(String id, BaralhoDTO baralhoDTO, String token) {
+        String usuarioId = jwtUtil.extrairUsuarioId(token); // nome corrigido
+        Optional<Baralho> optionalBaralho = baralhoRepository.findById(id);
+
+        if (optionalBaralho.isPresent()) {
+            Baralho baralho = optionalBaralho.get();
+
+            // Verifica se o baralho pertence ao usuário
+            if (!baralho.getUsuarioId().equals(usuarioId)) {
+                throw new RuntimeException("Você não tem permissão para editar este baralho.");
+            }
+
+            // Atualiza os dados do baralho
+            baralho.setNome(baralhoDTO.getNome());
+            baralho.setDescricao(baralhoDTO.getDescricao());
+            Baralho salvo = baralhoRepository.save(baralho);
+
+            return new BaralhoDTO(salvo.getId(), salvo.getNome(), salvo.getDescricao());
+        } else {
+            throw new RuntimeException("Baralho não encontrado.");
+        }
+    }
+
+    @Override
+    public void excluirBaralho(String id, String token) {
+        String usuarioId = jwtUtil.extrairUsuarioId(token); // nome corrigido
+        Optional<Baralho> optionalBaralho = baralhoRepository.findById(id);
+
+        if (optionalBaralho.isPresent()) {
+            Baralho baralho = optionalBaralho.get();
+
+            // Verifica se o baralho pertence ao usuário
+            if (!baralho.getUsuarioId().equals(usuarioId)) {
+                throw new RuntimeException("Você não tem permissão para excluir este baralho.");
+            }
+
+            // Exclui o baralho
+            baralhoRepository.delete(baralho);
+        } else {
+            throw new RuntimeException("Baralho não encontrado.");
+        }
     }
 }

@@ -1,12 +1,11 @@
 package com.example.backend.DTO;
 
-import java.time.LocalDateTime;
-
 public class FlashcardDTO {
     private String id;
     private String pergunta;
     private String resposta;
     private String baralhoId;
+
 
     public FlashcardDTO() {
     }
@@ -49,6 +48,7 @@ public class FlashcardDTO {
     public void setBaralhoId(String baralhoId) {
         this.baralhoId = baralhoId;
     }
+
 
     
 }

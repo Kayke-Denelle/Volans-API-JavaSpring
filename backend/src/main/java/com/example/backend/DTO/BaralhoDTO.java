@@ -5,6 +5,7 @@ public class BaralhoDTO {
     private String Nome;
     private String descricao;
 
+
     public BaralhoDTO(String id, String Nome, String descricao ) {
         this.Nome = Nome;
         this.descricao = descricao;
@@ -39,5 +40,7 @@ public class BaralhoDTO {
     public void setNome(String Nome) {
         this.Nome = Nome;
     }
+
+
     
 }
