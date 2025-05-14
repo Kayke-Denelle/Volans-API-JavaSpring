@@ -58,6 +58,11 @@ public class AdminController {
         data.put("totalBaralhos", baralhoRepository.count());
         data.put("totalFlashcards", flashcardRepository.count());
 
+        // Listas completas
+    data.put("usuarios", usuarioRepository.findAll());
+    data.put("baralhos", baralhoRepository.findAll());
+    data.put("flashcards", flashcardRepository.findAll());
+
         return ResponseEntity.ok(data);
     }
 }
