@@ -5,10 +5,8 @@
 
 package com.example.backend.repositories;
 
-import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import com.example.backend.models.Usuarios;
@@ -23,6 +21,4 @@ public interface UsuariosRepository extends MongoRepository<Usuarios, String> {
     Boolean existsByUsername(String username);
     Boolean existsByEmail(String email);
 
-    @Query("SELECT u.creationDate, COUNT(u) FROM Usuarios u GROUP BY u.creationDate ORDER BY u.creationDate")
-    List<Object[]> findUsuariosByCreationDate();
 }
