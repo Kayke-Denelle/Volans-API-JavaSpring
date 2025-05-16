@@ -1,13 +1,20 @@
 package com.example.backend.Security.services;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
+import com.example.backend.DTO.RequisicaoQuiz;
+import com.example.backend.DTO.RespostaUsuarioDTO;
+import com.example.backend.DTO.ResultadoFinalDTO;
+import com.example.backend.DTO.ResultadoQuiz;
 import com.example.backend.models.Flashcard;
 import com.example.backend.models.QuestaoQuiz;
 import com.example.backend.repositories.FlashcardRepository;
 import com.example.backend.repositories.QuizRepository;
-import com.example.backend.DTO.RequisicaoQuiz;
-import com.example.backend.DTO.ResultadoQuiz;
-import org.springframework.stereotype.Service;
-import java.util.*;
 
 @Service
 public class ServicoQuiz {
@@ -23,40 +30,42 @@ public class ServicoQuiz {
         this.servicoOpenAI = servicoOpenAI;
     }
 
-    public QuestaoQuiz gerarQuiz(String baralhoId) {
-        // 1. Obter flashcards do baralho
-        List<Flashcard> flashcards = flashcardRepo.findByBaralhoId(baralhoId);
-        if (flashcards.isEmpty()) {
-            throw new RuntimeException("Nenhum flashcard encontrado para o baralho: " + baralhoId);
-        }
+    public List<QuestaoQuiz> gerarQuiz(String baralhoId) {
+    // 1. Obter todos os flashcards do baralho
+    List<Flashcard> flashcards = flashcardRepo.findByBaralhoId(baralhoId);
+    if (flashcards.isEmpty()) {
+        throw new RuntimeException("Nenhum flashcard encontrado para o baralho: " + baralhoId);
+    }
 
-        // 2. Selecionar flashcard aleatório
-        Flashcard card = flashcards.get(new Random().nextInt(flashcards.size()));
+    List<QuestaoQuiz> quizzes = new ArrayList<>();
 
+    // 2. Para cada flashcard, gerar uma questão
+    for (Flashcard card : flashcards) {
         // 3. Gerar variações usando OpenAI
         String pergunta = servicoOpenAI.gerarVariacaoPergunta(card.getPergunta());
         String resposta = servicoOpenAI.gerarVariacaoResposta(card.getResposta());
 
         // 4. Gerar alternativas
         List<String> alternativas = new ArrayList<>();
-        alternativas.add(resposta); // Adiciona a resposta correta
-        
-        // Gera 3 distratores plausíveis
+        alternativas.add(resposta); // Resposta correta
+
         List<String> distratores = servicoOpenAI.gerarDistratores(pergunta, resposta, 3);
         alternativas.addAll(distratores);
-        
-        // Embaralha as alternativas
-        Collections.shuffle(alternativas);
+        Collections.shuffle(alternativas); // Embaralhar opções
 
-        // 5. Criar e salvar o quiz
+        // 5. Criar e salvar quiz
         QuestaoQuiz quiz = new QuestaoQuiz();
         quiz.setBaralhoId(baralhoId);
         quiz.setPergunta(pergunta);
         quiz.setRespostaCorreta(resposta);
         quiz.setAlternativas(alternativas);
-        
-        return quizRepo.save(quiz);
+
+        quizzes.add(quizRepo.save(quiz));
     }
+
+    return quizzes;
+}
+
 
     public ResultadoQuiz verificarResposta(RequisicaoQuiz requisicao) {
         // 1. Validar entrada
@@ -84,4 +93,24 @@ public class ServicoQuiz {
 
         return new ResultadoQuiz(acertou, quiz.getRespostaCorreta(), explicacao);
     }
+
+    public ResultadoFinalDTO avaliarRespostas(List<RespostaUsuarioDTO> respostas) {
+    int acertos = 0;
+
+    for (RespostaUsuarioDTO resposta : respostas) {
+        Optional<QuestaoQuiz> quizOpt = quizRepo.findById(resposta.getQuizId());
+
+        if (quizOpt.isPresent()) {
+            QuestaoQuiz quiz = quizOpt.get();
+
+            if (quiz.getRespostaCorreta().equalsIgnoreCase(resposta.getRespostaSelecionada())) {
+                acertos++;
+            }
+
+            quizRepo.deleteById(quiz.getId()); // Remove após responder
+        }
+    }
+
+    return new ResultadoFinalDTO(respostas.size(), acertos);
+}
 }
