@@ -18,6 +18,7 @@ import com.example.backend.repositories.QuizRepository;
 
 @Service
 public class ServicoQuiz {
+
     private final QuizRepository quizRepo;
     private final FlashcardRepository flashcardRepo;
     private final ServicoOpenAI servicoOpenAI;
@@ -28,6 +29,20 @@ public class ServicoQuiz {
         this.quizRepo = quizRepo;
         this.flashcardRepo = flashcardRepo;
         this.servicoOpenAI = servicoOpenAI;
+    }
+
+    public List<QuestaoQuiz> buscarQuizzesPorBaralho(String baralhoId) {
+
+
+        // Busca todas as questões do quiz para o baralho
+        List<QuestaoQuiz> quizzes = this.quizRepo.findByBaralhoId(baralhoId);
+
+        // Se não existirem quizzes, gera novos
+        if (quizzes == null || quizzes.isEmpty()) {
+            return gerarQuiz(baralhoId);
+        }
+
+        return quizzes;
     }
 
     public List<QuestaoQuiz> gerarQuiz(String baralhoId) {
