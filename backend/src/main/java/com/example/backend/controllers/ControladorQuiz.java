@@ -24,20 +24,24 @@ public class ControladorQuiz {
         this.servicoQuiz = servicoQuiz;
     }
 
-     @PostMapping("/gerar/{baralhoId}")
+    @PostMapping("/gerar/{baralhoId}")
     public ResponseEntity<List<QuestaoQuiz>> gerarQuiz(@PathVariable String baralhoId) {
         return ResponseEntity.ok(servicoQuiz.gerarQuiz(baralhoId));
     }
 
-
     @PostMapping("/avaliar")
-public ResponseEntity<ResultadoFinalDTO> avaliarTodos(@RequestBody List<RespostaUsuarioDTO> respostas) {
-    return ResponseEntity.ok(servicoQuiz.avaliarRespostas(respostas));
-}
+    public ResponseEntity<ResultadoFinalDTO> avaliarTodos(@RequestBody List<RespostaUsuarioDTO> respostas) {
+        return ResponseEntity.ok(servicoQuiz.avaliarRespostas(respostas));
+    }
 
-@GetMapping("/baralho/{baralhoId}")
-public ResponseEntity<List<QuestaoQuiz>> getQuizzesPorBaralho(@PathVariable String baralhoId) {
-    return ResponseEntity.ok(servicoQuiz.buscarQuizzesPorBaralho(baralhoId));
-}
+    @GetMapping("/baralho/{baralhoId}")
+    public ResponseEntity<List<QuestaoQuiz>> getQuizzesPorBaralho(@PathVariable String baralhoId) {
+        return ResponseEntity.ok(servicoQuiz.buscarQuizzesPorBaralho(baralhoId));
+    }
 
+    // Novo endpoint para buscar um quiz específico por ID
+    @GetMapping("/{quizId}")
+public ResponseEntity<QuestaoQuiz> getQuizPorId(@PathVariable String quizId) {
+    return ResponseEntity.ok(servicoQuiz.buscarQuizPorId(quizId));
+}
 }

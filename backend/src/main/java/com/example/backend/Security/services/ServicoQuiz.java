@@ -11,6 +11,7 @@ import com.example.backend.DTO.RequisicaoQuiz;
 import com.example.backend.DTO.RespostaUsuarioDTO;
 import com.example.backend.DTO.ResultadoFinalDTO;
 import com.example.backend.DTO.ResultadoQuiz;
+import com.example.backend.Exception.ResourceNotFoundException;
 import com.example.backend.models.Flashcard;
 import com.example.backend.models.QuestaoQuiz;
 import com.example.backend.repositories.FlashcardRepository;
@@ -81,6 +82,10 @@ public class ServicoQuiz {
     return quizzes;
 }
 
+    public QuestaoQuiz buscarQuizPorId(String quizId) {
+    return quizRepo.findById(quizId)
+            .orElseThrow(() -> new ResourceNotFoundException("Quiz não encontrado com id: " + quizId));
+}
 
     public ResultadoQuiz verificarResposta(RequisicaoQuiz requisicao) {
         // 1. Validar entrada
