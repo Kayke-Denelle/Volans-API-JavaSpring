@@ -9,4 +9,5 @@ import com.example.backend.models.Baralho;
 public interface BaralhoRepository extends MongoRepository<Baralho, String> {
     List<Baralho> findByUsuarioId(String usuarioId);
     
+    int countByUsuarioId(String usuarioId);
 }

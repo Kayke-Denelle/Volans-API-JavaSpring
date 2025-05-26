@@ -10,4 +10,7 @@ public interface BaralhoService {
 
     BaralhoDTO editarBaralho(String id, BaralhoDTO baralhoDTO, String token);
     void excluirBaralho(String id, String token);
+
+    int contarBaralhosDoUsuario(String token);
+    int contarFlashcardsDoUsuario(String token);
 }

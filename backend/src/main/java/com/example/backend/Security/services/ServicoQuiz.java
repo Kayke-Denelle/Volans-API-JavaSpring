@@ -133,4 +133,15 @@ public class ServicoQuiz {
 
     return new ResultadoFinalDTO(respostas.size(), acertos);
 }
+
+// Adicione este método no ServicoQuiz
+public void deletarQuizPorBaralhoId(String baralhoId) {
+    // Implementação depende do seu repositório
+    quizRepo.deleteByBaralhoId(baralhoId);
+}
+
+// E/ou este método se quiser deletar por quizId
+public void deletarQuizPorId(String quizId) {
+    quizRepo.deleteById(quizId);
+}
 }

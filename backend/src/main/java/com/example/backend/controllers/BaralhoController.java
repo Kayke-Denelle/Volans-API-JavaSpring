@@ -35,6 +35,18 @@ public class BaralhoController {
         return ResponseEntity.ok(baralhoService.listarBaralhosDoUsuario(token));
     }
 
+    @GetMapping("/quantidade")
+public ResponseEntity<Integer> obterQuantidadeBaralhos(@RequestHeader("Authorization") String token) {
+    int quantidade = baralhoService.contarBaralhosDoUsuario(token);
+    return ResponseEntity.ok(quantidade);
+}
+@GetMapping("/quantidade-flashcards")
+public ResponseEntity<Integer> obterQuantidadeFlashcards(@RequestHeader("Authorization") String token) {
+    int quantidade = baralhoService.contarFlashcardsDoUsuario(token);
+    return ResponseEntity.ok(quantidade);
+}
+
+
     @PutMapping("/{id}")
     public ResponseEntity<BaralhoDTO> editar(@PathVariable  String id, 
                                              @RequestBody BaralhoDTO baralhoDTO,

@@ -11,12 +11,16 @@ import com.example.backend.DTO.BaralhoDTO;
 import com.example.backend.Security.JWT.JwtUtil;
 import com.example.backend.models.Baralho;
 import com.example.backend.repositories.BaralhoRepository;
+import com.example.backend.repositories.FlashcardRepository;
 
 @Service
 public class BaralhoServiceImpl implements BaralhoService {
 
     @Autowired
     private BaralhoRepository baralhoRepository;
+
+    @Autowired
+private FlashcardRepository flashcardRepository;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -84,4 +88,19 @@ public class BaralhoServiceImpl implements BaralhoService {
             throw new RuntimeException("Baralho não encontrado.");
         }
     }
+
+    @Override
+public int contarBaralhosDoUsuario(String token) {
+    String userId = jwtUtil.extrairUsuarioId(token);
+    return baralhoRepository.countByUsuarioId(userId);
+}
+
+@Override
+public int contarFlashcardsDoUsuario(String token) {
+    String userId = jwtUtil.extrairUsuarioId(token);
+    List<Baralho> baralhos = baralhoRepository.findByUsuarioId(userId);
+    List<String> baralhoIds = baralhos.stream().map(Baralho::getId).toList();
+    return flashcardRepository.countByBaralhoIdIn(baralhoIds);
+}
+
 }

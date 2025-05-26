@@ -3,6 +3,7 @@ package com.example.backend.controllers;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -44,4 +45,20 @@ public class ControladorQuiz {
 public ResponseEntity<QuestaoQuiz> getQuizPorId(@PathVariable String quizId) {
     return ResponseEntity.ok(servicoQuiz.buscarQuizPorId(quizId));
 }
+// Endpoint para deletar todos os quizzes de um baralho
+    @DeleteMapping("/baralho/{baralhoId}")
+    public ResponseEntity<Void> deletarQuizzesPorBaralho(@PathVariable String baralhoId) {
+        servicoQuiz.deletarQuizPorBaralhoId(baralhoId);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Endpoint para deletar um quiz específico por ID
+    @DeleteMapping("/{quizId}")
+    public ResponseEntity<Void> deletarQuizPorId(@PathVariable String quizId) {
+        servicoQuiz.deletarQuizPorId(quizId);
+        return ResponseEntity.noContent().build();
+    }
+
+
+
 }

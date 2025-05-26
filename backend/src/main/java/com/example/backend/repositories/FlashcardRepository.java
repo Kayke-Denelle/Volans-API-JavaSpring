@@ -10,4 +10,5 @@ import com.example.backend.models.Flashcard;
 public interface FlashcardRepository extends MongoRepository<Flashcard, String> {
     List<Flashcard> findByBaralhoId(String baralhoId);
    
+    int countByBaralhoIdIn(List<String> baralhoIds);
 }
